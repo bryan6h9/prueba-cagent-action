@@ -1,0 +1,30 @@
+name: Analisis con Docker Agent
+
+on:
+  workflow_dispatch:
+
+jobs:
+  analizar:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@v4
+
+      - name: Ejecutar agente IA
+        id: agente
+        uses: docker/docker-agent-action@v2.0.9
+        with:
+          agent: docker/code-analyzer
+          prompt: "Analiza calculadora.py e identifica errores y mejoras."
+          anthropic-api-key: ${{ secrets.ANTHROPIC_API_KEY }}
+
+      - name: Mostrar resultados
+        if: always()
+        run: |
+          echo "Tiempo: ${{ steps.agente.outputs.execution-time }}"
+          echo "Codigo: ${{ steps.agente.outputs.exit-code }}"
+          echo "Riesgo: ${{ steps.agente.outputs.input-risk-level }}"
